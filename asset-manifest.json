@@ -1,10 +1,11 @@
 {
-  "files": {
-    "main.js": "/Brigita/static/js/main.d1eeb263.js",
-    "index.html": "/Brigita/index.html",
-    "main.d1eeb263.js.map": "/Brigita/static/js/main.d1eeb263.js.map"
-  },
-  "entrypoints": [
-    "static/js/main.d1eeb263.js"
-  ]
+  "main.js": "/Brigita/static/js/main.f38c3fa7.chunk.js",
+  "main.js.map": "/Brigita/static/js/main.f38c3fa7.chunk.js.map",
+  "static/js/1.28a02872.chunk.js": "/Brigita/static/js/1.28a02872.chunk.js",
+  "static/js/1.28a02872.chunk.js.map": "/Brigita/static/js/1.28a02872.chunk.js.map",
+  "runtime~main.js": "/Brigita/static/js/runtime~main.bd26a83b.js",
+  "runtime~main.js.map": "/Brigita/static/js/runtime~main.bd26a83b.js.map",
+  "index.html": "/Brigita/index.html",
+  "precache-manifest.0c683787bece8202207e4c716f74287d.js": "/Brigita/precache-manifest.0c683787bece8202207e4c716f74287d.js",
+  "service-worker.js": "/Brigita/service-worker.js"
 }
