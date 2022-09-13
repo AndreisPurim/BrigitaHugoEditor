@@ -60,7 +60,7 @@ const LoadingIndicator = props => {
 }
 
 function Main(){
-  const [token, setToken] = React.useState(process.env.REACT_APP_GH);
+  const [token, setToken] = React.useState("");
   const [lightMode, setLightMode] = React.useState(useMediaQuery('(prefers-color-scheme: dark)')?'dark':'light');
   const [color, setColor] = React.useState('#f44336');
   const [show, setShow] = React.useState(false);
