@@ -1,7 +1,7 @@
 self.__precacheManifest = [
   {
-    "revision": "1edc9cb9ab3dc89a041d",
-    "url": "/Brigita/static/js/main.1edc9cb9.chunk.js"
+    "revision": "38f5d99ad7234ae3c85b",
+    "url": "/Brigita/static/js/main.38f5d99a.chunk.js"
   },
   {
     "revision": "b9286a88c9f90f86d873",
@@ -12,7 +12,7 @@ self.__precacheManifest = [
     "url": "/Brigita/static/js/runtime~main.bd26a83b.js"
   },
   {
-    "revision": "459a74c1276d46a1da43ae6c6d1ce9ab",
+    "revision": "8dc42baeabc5fa7869d4f49751abe91d",
     "url": "/Brigita/index.html"
   }
 ];

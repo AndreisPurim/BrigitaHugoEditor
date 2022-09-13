@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/Brigita/precache-manifest.12c1c81a355e45bfabaa06cf8d89bc3d.js"
+  "/Brigita/precache-manifest.315c5105c6f9406ec3954b21198caf0b.js"
 );
 
 workbox.clientsClaim();
