@@ -34,6 +34,13 @@ import FormControl from '@mui/material/FormControl';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import Paper from '@mui/material/Paper';
+import LogoutIcon from '@mui/icons-material/Logout';
+import Fade from '@mui/material/Fade';
+
+import { usePromiseTracker, trackPromise } from "react-promise-tracker";
+
+import HashLoader from "react-spinners/HashLoader";
 
 const getComplementaryColor = (color = '') => {
   const colorPart = color.slice(1);
@@ -45,8 +52,15 @@ const getComplementaryColor = (color = '') => {
   return '#' + iter;
 };
 
+const LoadingIndicator = props => {
+  const { promiseInProgress } = usePromiseTracker();
+    return (
+      promiseInProgress && <HashLoader color="white" />
+  );  
+}
+
 function Main(){
-  const [token, setToken] = React.useState("");
+  const [token, setToken] = React.useState("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");
   const [lightMode, setLightMode] = React.useState(useMediaQuery('(prefers-color-scheme: dark)')?'dark':'light');
   const [color, setColor] = React.useState('#f44336');
   const [show, setShow] = React.useState(false);
@@ -73,16 +87,13 @@ function Main(){
     setLogin(token);
   }
   const changeTheme=()=>{
-    if(lightMode==='light')
-      setLightMode('dark')
-    else
-      setLightMode('light')
+    setLightMode(lightMode==='light'?'dark':'light')
   }
   return(
     <ThemeProvider theme={theme}>
-      <DrifterStars style={{zIndex: "-1", backgroundColor: "#31102f", background: "linear-gradient(-45deg," + theme.palette.primary.main + ","+ theme.palette.secondary.main + ")",
+      <DrifterStars style={{zIndex: "-1", backgroundColor: "#31102f", background: "linear-gradient(-45deg," + (lightMode==='light'?theme.palette.primary.light:theme.palette.primary.dark) + ","+ (lightMode==='light'?theme.palette.secondary.light:theme.palette.secondary.dark) + ")",
 display: "block", position: "fixed", inset: "0"}}/>
-      <Grid container direction="column" justifyContent="center" alignItems="center" >
+      <Grid container direction="column" justifyContent="center" alignItems="center" style={{backdropFilter: "brightness(1.5)"}} >
         <Grid item color="white">
           <Typography variant="h3"><b> [ BRI<span style={{ color: theme.palette.primary.main, filter: "brightness(1.5)"}}>GIT</span>A ] </b></Typography>
         </Grid>
@@ -100,9 +111,17 @@ display: "block", position: "fixed", inset: "0"}}/>
               <DarkModeIcon style={{color:"white"}}/>
             </IconButton>
           </Tooltip>
+          {login===""?null:
+            <Tooltip title="Dark Mode">
+              <IconButton onClick={()=>setLogin("")}>
+                <LogoutIcon style={{color:"white"}}/>
+              </IconButton>
+            </Tooltip>
+          }
         </Grid>
+        <LoadingIndicator/>
       {login?
-        <ReposPage login={login}/>
+        <ReposPage login={login} lightMode={lightMode}/>
       :
         <Grid item >
           <Card elevation={24} sx={{maxWidth: 600}}>
@@ -148,29 +167,50 @@ display: "block", position: "fixed", inset: "0"}}/>
   )
 }
 
-function ReposPage({ login }){
+function ReposPage({ lightMode, login }){
   const [repos, setRepos] = React.useState([]);
+  const [selected, setSelected] = React.useState(null);
   const octokit = new Octokit({     
     auth: login,    
-    userAgent: 'skylight v1' 
+    userAgent: 'Brigita Editor' 
   });
-  
   React.useEffect(() => {
     async function onLoad() {
       await octokit.request('GET /user/repos', {})
       .then(res => setRepos(res.data))
       .catch(err => console.log(err))
     }
-    onLoad();
+    trackPromise(onLoad());
   },[])
+  console.log(repos)
   return(
-    <div>
-      hey
-      <ul>
-        {repos.map(item => <li key={item.id}>{item.name}</li>)}
-      </ul>
+    <Grid item xs={12}>
+      <Fade in={Boolean(repos.length && !selected)} unmountOnExit>
+        <Paper elevation={24} style={{padding:'2rem'}}>
+          <Grid spacing={2} container direction="row" justifyContent="center" alignItems="flex-start">
+            <Grid item xs={12} style={{textAlign:'center'}}><Typography variant="h4">Pick your website repository</Typography></Grid>
+            {repos.map(item =>
+              <Grid item key={item.id} xs={2} >
+                <Button onClick={()=>setSelected(item)} fullWidth size="large" variant={lightMode==='light'?"contained":"outlined"} style={{textTransform: 'none'}}>{item.name}</Button>      
+              </Grid>
+            )}
+          </Grid>
+        </Paper>
+      </Fade>
+      <WebsitePage lightMode={lightMode} octokit={octokit} repo={selected}/>
+    </Grid>
+  )
+}
 
-    </div>)
+function WebsitePage({ lightMode, octokit, repo }){
+  if(repo){
+    return(
+      <Grid item xs={12}>
+        <div>{repo.trees_url}</div>
+      </Grid>
+    )
+  }
+  else{ return null; }
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(<Main />);
