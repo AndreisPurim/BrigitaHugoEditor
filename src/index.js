@@ -186,7 +186,6 @@ function ReposPage({ lightMode, login }){
     }
     trackPromise(onLoad());
   },[])
-  console.log(repos)
   return(
     <Grid item xs={12}>
       <Fade in={Boolean(repos.length && !selected)} unmountOnExit>
@@ -217,14 +216,17 @@ function WebsitePage({ lightMode, octokit, repo }){
         repo: repo.name,
         path: ''
       })
-      .then(res => console.log(res))
+      .then(res => setFiles(res.data))
       .catch(err => console.log(err))
     }
     trackPromise(onLoad());
   },[])
+  console.log(files)
   return(
     <Grid item xs={12}>
-      <div>asd</div>
+      <Paper style={{minWidth:'80vw'}}>
+        asd
+      </Paper>
     </Grid>
   )
 }
