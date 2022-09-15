@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Octokit } from "@octokit/rest";
 import DrifterStars from '@devil7softwares/react-drifter-stars'
+import { CookiesProvider, useCookies } from 'react-cookie';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -13,6 +14,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import ButtonBase from '@mui/material/ButtonBase';
 import { ThemeProvider, useTheme, createTheme } from "@mui/material/styles";
+
 
 import Tooltip from '@mui/material/Tooltip';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -60,7 +62,8 @@ const LoadingIndicator = props => {
 }
 
 function Main(){
-  const [token, setToken] = React.useState("");
+  const [cookies, setCookie] = useCookies(['token']);
+  const [token, setToken] = React.useState(cookies.token);
   const [lightMode, setLightMode] = React.useState(useMediaQuery('(prefers-color-scheme: dark)')?'dark':'light');
   const [color, setColor] = React.useState('#f44336');
   const [show, setShow] = React.useState(false);
@@ -84,6 +87,7 @@ function Main(){
   }
   const handleSubmit = (event) => {
     event.preventDefault();
+    setCookie('token', token, { path: '/' });
     setLogin(token);
   }
   const changeTheme=()=>{
@@ -197,20 +201,32 @@ function ReposPage({ lightMode, login }){
           </Grid>
         </Paper>
       </Fade>
-      <WebsitePage lightMode={lightMode} octokit={octokit} repo={selected}/>
+      {!selected?null:
+        <WebsitePage lightMode={lightMode} octokit={octokit} repo={selected}/>
+      }
     </Grid>
   )
 }
 
 function WebsitePage({ lightMode, octokit, repo }){
-  if(repo){
-    return(
-      <Grid item xs={12}>
-        <div>{repo.trees_url}</div>
-      </Grid>
-    )
-  }
-  else{ return null; }
+  const [files, setFiles] = React.useState(null);
+  React.useEffect(() => {
+    async function onLoad() {
+      await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
+        owner: repo.owner.login,
+        repo: repo.name,
+        path: ''
+      })
+      .then(res => console.log(res))
+      .catch(err => console.log(err))
+    }
+    trackPromise(onLoad());
+  },[])
+  return(
+    <Grid item xs={12}>
+      <div>asd</div>
+    </Grid>
+  )
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<Main />);
+ReactDOM.createRoot(document.getElementById('root')).render(<CookiesProvider><Main /></CookiesProvider>);
