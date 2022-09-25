@@ -4,20 +4,15 @@ import { Octokit } from "@octokit/rest";
 import DrifterStars from '@devil7softwares/react-drifter-stars'
 import { CookiesProvider, useCookies } from 'react-cookie';
 
-import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Grid from '@mui/material/Grid';
-import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
-import CardHeader from '@mui/material/CardHeader';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import ButtonBase from '@mui/material/ButtonBase';
 import { ThemeProvider, useTheme, createTheme } from "@mui/material/styles";
 
 
 import Tooltip from '@mui/material/Tooltip';
-import DeleteIcon from '@mui/icons-material/Delete';
 import IconButton from '@mui/material/IconButton';
 import Link from '@mui/material/Link';
 
@@ -25,14 +20,11 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import ColorLensIcon from '@mui/icons-material/ColorLens';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
-import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import TextField from '@mui/material/TextField';
 
 
 import InputLabel from '@mui/material/InputLabel';
 import InputAdornment from '@mui/material/InputAdornment';
-import FormHelperText from '@mui/material/FormHelperText';
 import FormControl from '@mui/material/FormControl';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
@@ -55,7 +47,7 @@ import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import ArticleIcon from '@mui/icons-material/Article';
 import HandymanIcon from '@mui/icons-material/Handyman';
 
-import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
+import AutoFixNormalIcon from '@mui/icons-material/AutoFixNormal';
 import AutoFixOffIcon from '@mui/icons-material/AutoFixOff';
 
 import { usePromiseTracker, trackPromise } from "react-promise-tracker";
@@ -64,7 +56,8 @@ import CodeEditor from '@uiw/react-textarea-code-editor';
 
 import HashLoader from "react-spinners/HashLoader";
 import MDEditor from '@uiw/react-md-editor';
-import FolderZipIcon from '@mui/icons-material/FolderZip';
+
+import {exampleRepo} from './example.js';
 
 
 const getComplementaryColor = (color = '') => {
@@ -141,7 +134,7 @@ display: "block", position: "fixed", inset: "0"}}/>
           </Tooltip>
           <Tooltip title={"Change to "+(easyMode?'Technical':'Easy')+" Mode "+(easyMode?'(will show all files as is, including technical ones)':'(will try to show you only the necessary)')}>
             <IconButton onClick={()=>setEasyMode(!easyMode)}>
-              {easyMode?<AutoFixOffIcon style={{color:"white"}}/>:<AutoFixHighIcon style={{color:"white"}}/>}
+              {easyMode?<AutoFixOffIcon style={{color:"white"}}/>:<AutoFixNormalIcon style={{color:"white"}}/>}
             </IconButton>
           </Tooltip>
           {login===""?null:
@@ -153,120 +146,11 @@ display: "block", position: "fixed", inset: "0"}}/>
           }
         </Grid>
         <LoadingIndicator/>
-        <WebsitePage lightMode={lightMode} easyMode={easyMode}
-        octokit={new Octokit({     
-          auth: '',    
-          userAgent: 'Brigita Editor' 
-        })}
-        
-        repo={{
-  "id": 534644223,
-  "node_id": "R_kgDOH94F_w",
-  "name": "baltsec_test",
-  "full_name": "Baltic-Security-Foundation/baltsec_test",
-  "private": false,
-  "owner": {
-    "login": "Baltic-Security-Foundation",
-    "id": 101171342,
-    "node_id": "O_kgDOBgfAjg",
-    "avatar_url": "https://avatars.githubusercontent.com/u/101171342?v=4",
-    "gravatar_id": "",
-    "url": "https://api.github.com/users/Baltic-Security-Foundation",
-    "html_url": "https://github.com/Baltic-Security-Foundation",
-    "followers_url": "https://api.github.com/users/Baltic-Security-Foundation/followers",
-    "following_url": "https://api.github.com/users/Baltic-Security-Foundation/following{/other_user}",
-    "gists_url": "https://api.github.com/users/Baltic-Security-Foundation/gists{/gist_id}",
-    "starred_url": "https://api.github.com/users/Baltic-Security-Foundation/starred{/owner}{/repo}",
-    "subscriptions_url": "https://api.github.com/users/Baltic-Security-Foundation/subscriptions",
-    "organizations_url": "https://api.github.com/users/Baltic-Security-Foundation/orgs",
-    "repos_url": "https://api.github.com/users/Baltic-Security-Foundation/repos",
-    "events_url": "https://api.github.com/users/Baltic-Security-Foundation/events{/privacy}",
-    "received_events_url": "https://api.github.com/users/Baltic-Security-Foundation/received_events",
-    "type": "Organization",
-    "site_admin": false
-  },
-  "html_url": "https://github.com/Baltic-Security-Foundation/baltsec_test",
-  "description": null,
-  "fork": false,
-  "url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test",
-  "forks_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/forks",
-  "keys_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/keys{/key_id}",
-  "collaborators_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/collaborators{/collaborator}",
-  "teams_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/teams",
-  "hooks_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/hooks",
-  "issue_events_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/issues/events{/number}",
-  "events_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/events",
-  "assignees_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/assignees{/user}",
-  "branches_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/branches{/branch}",
-  "tags_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/tags",
-  "blobs_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/git/blobs{/sha}",
-  "git_tags_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/git/tags{/sha}",
-  "git_refs_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/git/refs{/sha}",
-  "trees_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/git/trees{/sha}",
-  "statuses_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/statuses/{sha}",
-  "languages_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/languages",
-  "stargazers_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/stargazers",
-  "contributors_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/contributors",
-  "subscribers_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/subscribers",
-  "subscription_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/subscription",
-  "commits_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/commits{/sha}",
-  "git_commits_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/git/commits{/sha}",
-  "comments_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/comments{/number}",
-  "issue_comment_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/issues/comments{/number}",
-  "contents_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/contents/{+path}",
-  "compare_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/compare/{base}...{head}",
-  "merges_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/merges",
-  "archive_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/{archive_format}{/ref}",
-  "downloads_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/downloads",
-  "issues_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/issues{/number}",
-  "pulls_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/pulls{/number}",
-  "milestones_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/milestones{/number}",
-  "notifications_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/notifications{?since,all,participating}",
-  "labels_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/labels{/name}",
-  "releases_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/releases{/id}",
-  "deployments_url": "https://api.github.com/repos/Baltic-Security-Foundation/baltsec_test/deployments",
-  "created_at": "2022-09-09T13:00:42Z",
-  "updated_at": "2022-09-09T13:03:02Z",
-  "pushed_at": "2022-09-09T13:23:45Z",
-  "git_url": "git://github.com/Baltic-Security-Foundation/baltsec_test.git",
-  "ssh_url": "git@github.com:Baltic-Security-Foundation/baltsec_test.git",
-  "clone_url": "https://github.com/Baltic-Security-Foundation/baltsec_test.git",
-  "svn_url": "https://github.com/Baltic-Security-Foundation/baltsec_test",
-  "homepage": null,
-  "size": 1329,
-  "stargazers_count": 0,
-  "watchers_count": 0,
-  "language": "SCSS",
-  "has_issues": true,
-  "has_projects": true,
-  "has_downloads": true,
-  "has_wiki": true,
-  "has_pages": true,
-  "forks_count": 0,
-  "mirror_url": null,
-  "archived": false,
-  "disabled": false,
-  "open_issues_count": 0,
-  "license": null,
-  "allow_forking": true,
-  "is_template": false,
-  "web_commit_signoff_required": false,
-  "topics": [],
-  "visibility": "public",
-  "forks": 0,
-  "open_issues": 0,
-  "watchers": 0,
-  "default_branch": "main",
-  "permissions": {
-    "admin": true,
-    "maintain": true,
-    "push": true,
-    "triage": true,
-    "pull": true
-  }
-}} />
-        {/* {login?
-          <ReposPage login={login} lightMode={lightMode}/>
+        {login?
+          login==='example'?
+            <WebsitePage lightMode={lightMode} easyMode={easyMode} octokit={new Octokit({auth: '', userAgent: 'Brigita Editor Example' })} repo= {exampleRepo}/>
+            :
+            <ReposPage login={login} lightMode={lightMode}/>
         :
           <Grid item >
             <Card elevation={24} sx={{maxWidth: 600}}>
@@ -275,8 +159,17 @@ display: "block", position: "fixed", inset: "0"}}/>
                   Welcome to Brigita!
                 </Typography>
                 <Typography variant="h5" component="div">
-                    Paste your github Personal Access Token below!
+                  We are an Static Open Source SSG editor!
                 </Typography>
+                <Typography color="text.secondary" gutterBottom>
+                  Basicallly, we make editing gh-pages made with Hugo, Jekyll and others alike easier, and the best part is: 100% free! (Also,did we mention our slick design?)
+                </Typography>
+                <Typography color="text.secondary" gutterBottom>
+                  Read the tutorial and FAQ or explore the example website below!
+                </Typography>
+                <div style={{textAlign:'center'}}>
+                  <Button style={{margin:'1rem'}} onClick={()=>{setLogin('example')}} variant="contained">Example Website</Button>
+                </div>
                 <Typography color="text.secondary" gutterBottom>
                   We use the P.A.T. to connect to your github files! The P.A.T will be stored encripted in the cookies of your browser for easier access!
                 </Typography>
@@ -303,7 +196,7 @@ display: "block", position: "fixed", inset: "0"}}/>
               </CardContent>
             </Card>
           </Grid>
-        } */ }
+        }
         <Grid item color="white">
           <Typography variant="overline">Created by <Link href="https://github.com/AndreisPurim" target="_blank" rel="noopener noreferrer" color="inherit" sx={{textDecorationStyle: 'dotted'}}>Andreis Purim</Link> (<Link href="https://github.com/AndreisPurim/Brigita" target="_blank" rel="noopener noreferrer" color="inherit" sx={{textDecorationStyle: 'dotted'}}>Source</Link>)</Typography>
         </Grid>
@@ -379,7 +272,7 @@ function WebsitePage({ lightMode, octokit, repo, easyMode }){
                 )}
               </List>
             </Grid>
-            <Grid item xs={9} data-color-mode={lightMode} style={{maxHeight: '70vh'}}>
+            <Grid item container xs={9} data-color-mode={lightMode} direction="column" justifyContent="flex-start" alignItems="stretch">
               <FileEditor file={file} setFile={setFile} easyMode={easyMode}/>
             </Grid>
           </Grid>
@@ -387,24 +280,6 @@ function WebsitePage({ lightMode, octokit, repo, easyMode }){
       }
     </Grid>
   )
-}
-
-function FileEditor({file, setFile, easyMode}){
-  console.log(file)
-  //const encoded = res.data.content;
-  //const decoded = atob(encoded);
-  if(easyMode){
-    return(
-      <MDEditor value={file?atob(file.data.content):""} height='99%'/>
-    )
-  }
-  else{
-    return(
-      <div style={{maxHeight: '70vh',overflow:'auto'}}>
-        <CodeEditor height='99%' value={file?atob(file.data.content):""} language={file?file.data.name.substring(file.data.name.lastIndexOf('.') + 1):'js'}/>
-      </div>
-    )
-  }
 }
 
 function Directory({ lightMode, octokit, repo, item, setFile }){
@@ -458,10 +333,7 @@ function File({ lightMode, octokit, repo, item, setFile }){
       path: item.path
     })
     .then(res => {
-      //const encoded = res.data.content;
-      //const decoded = atob(encoded);
-      //setFile(decoded)
-      setFile(res);
+      setFile(res.data);
     })
     .catch(err => console.log(err))
   }
@@ -475,6 +347,52 @@ function File({ lightMode, octokit, repo, item, setFile }){
       </ListItemButton>
     </ListItem>
   )
+}
+
+
+function FileEditor({file, setFile, easyMode}){
+  const [content, setContent] = React.useState(null)
+  React.useEffect(() => {
+    if(file){
+      if(easyMode){
+        setContent(atob(file.content))
+      }
+      else{
+        setContent(atob(file.content))
+      }
+    }
+  }, [file, easyMode])
+  if(content){
+    return(
+      <React.Fragment>
+        <Grid item style={{height: '10vh'}}>
+          <Button variant="contained">Publish</Button>
+        </Grid>
+          {easyMode?
+            <Grid item style={{maxHeight: '60vh'}}>
+              <MDEditor value={content} onChange={setContent} height='99%'/>
+            </Grid>
+          :
+            <Grid item style={{maxHeight: '60vh', overflow: 'auto'}}>
+              <CodeEditor height='99%' value={content} onChange={e => setContent(e.target.value)}
+ language={file.name.substring(file.name.lastIndexOf('.') + 1)}/>
+            </Grid>
+          }
+      </React.Fragment>
+    )
+  }
+  else{
+    return(
+      <React.Fragment>
+      <Grid item xs/>
+      <Grid item style={{textAlign: 'center'}}>
+        <Typography>Select a file to start editing!</Typography>
+        <Typography>You are in <b>{easyMode?'easy':'technical'} mode</b></Typography>     
+      </Grid>
+      <Grid item xs/>
+      </React.Fragment>
+    )
+  }
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(<CookiesProvider><Main /></CookiesProvider>);

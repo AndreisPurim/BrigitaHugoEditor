@@ -1,70 +1,48 @@
-# Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# [ Brigita ] Editor 🖊️ 
+> "The poor man's forestry.io' - Me, 2022.
 
-## Available Scripts
+[![Maintenance Status](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/ISARVIT/ISARVIT) [![Website Status](https://img.shields.io/website-up-down-green-red/https/andreispurim.github.io/Brigita)](https://andreispurim.github.io/Brigita) ![Version](https://img.shields.io/github/package-json/v/andreispurim/Brigita)
+[![](https://img.shields.io/badge/Material%20UI-007FFF?style=for-the-badge&logo=mui&logoColor=white) ](https://mui.com/) [![](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/) [![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://pages.github.com/)
+So, imagine you have created a nice [Hugo](https://gohugo.io/) or [Jekyll](https://jekyllrb.com/) static website for some personal project and hosted it on Github. Everything is fine and dandy until one of your non-tech friends wants to edit one small thing or maybe add a blog post.
 
-In the project directory, you can run:
+_Oh no!_ you think: either you'll have to **teach him to do it by himself** (which, even thought seems obvious and easy, a lot of people have difficulty with), or you'll have to use some service like [forestry.io](forestry.io) (which, while very good, sometimes is an **overkill or can be an unexpected up in your budget of 0$**).
 
-### `npm start`
+Well, friend, I do have the solution for you. It's this **static, 100% frontend, free and compact** and **simple editor** called **Brigita** (briGITa, get it? yes, I achieved comedy). Brigita fills the gap of trying to be very non-tech friendly, while still being flexible enough to help people achieve their means.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+The best part is that the entire system is less than **600 lines of code in a single index.js**¹ coded in [React](https://reactjs.org/) using [MaterialUI](https://mui.com/) and hosted on [Github pages](https://pages.github.com/). This means that every person can fork/clone and make their own functioning version.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## How to use:
+1. Create your github repository with your Hugo website.
+2. Configure a workflow to regenerate the build every change in the repository
+3. Create a Personal Access Token
+4. Connect to **Brigita** and start editing
+5. Push every time you change a file
+6. Watch the website update!
 
-### `npm test`
+So, meanwhile, creating the website and the webflow is still done manually. In future versions, I'd probably try to integrate both in Brigita, check the to-do and updates for that.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Functioning Principle:
 
-### `npm run build`
+Since this is an static website hosted on github, every operation is done user-side. The github API OAuth authentication requires server, so I decided to skip that and use directly a Personal Access Token.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Basically, the program fetches the user repositories, and fetch every file/directory as the user clicks them (inefficient for the user, I know, but it's how the API works².
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Then, when the user changes or creates a new file, the program simply makes a push in the repository. _Yes, Brigita is a glorified git pull-push, but your non-tech friend doesn't know that._
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+# Dev Notes and To Do
 
-### `npm run eject`
+- **V 0.1.0:**  (25/10/2022)
+    - Revived the old idea and started prototyping. Basically we just have the visuals, and the functioning but it still doesn't push to the repo.
+    - Example button should show user what the main point is.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+# FAQ
+(No Questions so far!)
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+# Comments
+¹ (I know the pitfalls of this practice, but I like to design these functional react websites in the more "direct" way possible, so whenever editing or taking a piece apart, it works on its own. Brigita is simple/direct enough this still makes sense.)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+² The github API repo tree could be used, but in some cases it can fetch an infinitude of useless files, which is why they recommend just fetching content per content.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Criticism and new ideas are more than welcome.
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
