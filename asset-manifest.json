@@ -1,11 +1,13 @@
 {
-  "main.js": "/Brigita/static/js/main.38f5d99a.chunk.js",
-  "main.js.map": "/Brigita/static/js/main.38f5d99a.chunk.js.map",
-  "static/js/1.b9286a88.chunk.js": "/Brigita/static/js/1.b9286a88.chunk.js",
-  "static/js/1.b9286a88.chunk.js.map": "/Brigita/static/js/1.b9286a88.chunk.js.map",
+  "main.js": "/Brigita/static/js/main.83aa90ee.chunk.js",
+  "main.js.map": "/Brigita/static/js/main.83aa90ee.chunk.js.map",
+  "static/css/1.6b3d8181.chunk.css": "/Brigita/static/css/1.6b3d8181.chunk.css",
+  "static/js/1.d1b9f617.chunk.js": "/Brigita/static/js/1.d1b9f617.chunk.js",
+  "static/js/1.d1b9f617.chunk.js.map": "/Brigita/static/js/1.d1b9f617.chunk.js.map",
   "runtime~main.js": "/Brigita/static/js/runtime~main.bd26a83b.js",
   "runtime~main.js.map": "/Brigita/static/js/runtime~main.bd26a83b.js.map",
+  "static/css/1.6b3d8181.chunk.css.map": "/Brigita/static/css/1.6b3d8181.chunk.css.map",
   "index.html": "/Brigita/index.html",
-  "precache-manifest.315c5105c6f9406ec3954b21198caf0b.js": "/Brigita/precache-manifest.315c5105c6f9406ec3954b21198caf0b.js",
+  "precache-manifest.f071ca340e4ce6385fb3445f48dcff18.js": "/Brigita/precache-manifest.f071ca340e4ce6385fb3445f48dcff18.js",
   "service-worker.js": "/Brigita/service-worker.js"
 }
