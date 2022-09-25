@@ -3,7 +3,9 @@
 > "The poor man's forestry.io' - Me, 2022.
 
 [![Maintenance Status](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/ISARVIT/ISARVIT) [![Website Status](https://img.shields.io/website-up-down-green-red/https/andreispurim.github.io/Brigita)](https://andreispurim.github.io/Brigita) ![Version](https://img.shields.io/github/package-json/v/andreispurim/Brigita)
+
 [![](https://img.shields.io/badge/Material%20UI-007FFF?style=for-the-badge&logo=mui&logoColor=white) ](https://mui.com/) [![](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/) [![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://pages.github.com/)
+
 So, imagine you have created a nice [Hugo](https://gohugo.io/) or [Jekyll](https://jekyllrb.com/) static website for some personal project and hosted it on Github. Everything is fine and dandy until one of your non-tech friends wants to edit one small thing or maybe add a blog post.
 
 _Oh no!_ you think: either you'll have to **teach him to do it by himself** (which, even thought seems obvious and easy, a lot of people have difficulty with), or you'll have to use some service like [forestry.io](forestry.io) (which, while very good, sometimes is an **overkill or can be an unexpected up in your budget of 0$**).
