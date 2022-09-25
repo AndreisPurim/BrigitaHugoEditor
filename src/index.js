@@ -24,6 +24,7 @@ import Link from '@mui/material/Link';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import ColorLensIcon from '@mui/icons-material/ColorLens';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
+import LightModeIcon from '@mui/icons-material/LightMode';
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import TextField from '@mui/material/TextField';
@@ -52,8 +53,14 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import ArticleIcon from '@mui/icons-material/Article';
+import HandymanIcon from '@mui/icons-material/Handyman';
+
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
+import AutoFixOffIcon from '@mui/icons-material/AutoFixOff';
 
 import { usePromiseTracker, trackPromise } from "react-promise-tracker";
+import CodeEditor from '@uiw/react-textarea-code-editor';
+
 
 import HashLoader from "react-spinners/HashLoader";
 import MDEditor from '@uiw/react-md-editor';
@@ -81,6 +88,7 @@ function Main(){
   const [cookies, setCookie] = useCookies(['token']);
   const [token, setToken] = React.useState(cookies.token);
   const [lightMode, setLightMode] = React.useState(useMediaQuery('(prefers-color-scheme: dark)')?'dark':'light');
+  const [easyMode, setEasyMode] = React.useState(true);
   const [color, setColor] = React.useState('#f44336');
   const [show, setShow] = React.useState(false);
   const [login, setLogin] = React.useState("");
@@ -126,13 +134,18 @@ display: "block", position: "fixed", inset: "0"}}/>
               <ColorLensIcon style={{color:"white"}}/>
             </IconButton>
           </Tooltip>
-          <Tooltip title="Dark Mode">
+          <Tooltip title={"Change to "+(lightMode==='light'?'Dark':'Light')+" Mode"}>
             <IconButton onClick={changeTheme}>
-              <DarkModeIcon style={{color:"white"}}/>
+              {lightMode==='light'?<DarkModeIcon style={{color:"white"}}/>:<LightModeIcon style={{color:"white"}}/>}
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={"Change to "+(easyMode?'Technical':'Easy')+" Mode "+(easyMode?'(will show all files as is, including technical ones)':'(will try to show you only the necessary)')}>
+            <IconButton onClick={()=>setEasyMode(!easyMode)}>
+              {easyMode?<AutoFixOffIcon style={{color:"white"}}/>:<AutoFixHighIcon style={{color:"white"}}/>}
             </IconButton>
           </Tooltip>
           {login===""?null:
-            <Tooltip title="Dark Mode">
+            <Tooltip title="Logout of your PAT">
               <IconButton onClick={()=>setLogin("")}>
                 <LogoutIcon style={{color:"white"}}/>
               </IconButton>
@@ -140,7 +153,7 @@ display: "block", position: "fixed", inset: "0"}}/>
           }
         </Grid>
         <LoadingIndicator/>
-        <WebsitePage lightMode={lightMode} 
+        <WebsitePage lightMode={lightMode} easyMode={easyMode}
         octokit={new Octokit({     
           auth: '',    
           userAgent: 'Brigita Editor' 
@@ -336,7 +349,7 @@ function ReposPage({ lightMode, login }){
   )
 }
 
-function WebsitePage({ lightMode, octokit, repo }){
+function WebsitePage({ lightMode, octokit, repo, easyMode }){
   const [files, setFiles] = React.useState([]);
   const [file, setFile] = React.useState(null);
   React.useEffect(() => {
@@ -354,10 +367,10 @@ function WebsitePage({ lightMode, octokit, repo }){
   return(
     <Grid item xs={12}>
       {files.length<1?null:
-        <Paper style={{minWidth:'80vw'}}>
+        <Paper style={{width:'90vw'}}>
           <Grid container direction="row" justifyContent="space-between" alignItems="stretch">
-            <Grid item xs={3}>
-              <List>
+            <Grid item xs={3} style={{maxHeight: '70vh', overflow: 'auto'}}>
+              <List dense>
                 {files.map(item=>
                   item.type==='dir'?
                     <Directory key={item.name} lightMode={lightMode} octokit={octokit} repo={repo} item={item} setFile={setFile}/> 
@@ -366,14 +379,32 @@ function WebsitePage({ lightMode, octokit, repo }){
                 )}
               </List>
             </Grid>
-            <Grid item xs={9} data-color-mode={lightMode}>
-                <MDEditor value={file?file:""} height='99%'/>
+            <Grid item xs={9} data-color-mode={lightMode} style={{maxHeight: '70vh'}}>
+              <FileEditor file={file} setFile={setFile} easyMode={easyMode}/>
             </Grid>
           </Grid>
         </Paper>
       }
     </Grid>
   )
+}
+
+function FileEditor({file, setFile, easyMode}){
+  console.log(file)
+  //const encoded = res.data.content;
+  //const decoded = atob(encoded);
+  if(easyMode){
+    return(
+      <MDEditor value={file?atob(file.data.content):""} height='99%'/>
+    )
+  }
+  else{
+    return(
+      <div style={{maxHeight: '70vh',overflow:'auto'}}>
+        <CodeEditor height='99%' value={file?atob(file.data.content):""} language={file?file.data.name.substring(file.data.name.lastIndexOf('.') + 1):'js'}/>
+      </div>
+    )
+  }
 }
 
 function Directory({ lightMode, octokit, repo, item, setFile }){
@@ -388,7 +419,7 @@ function Directory({ lightMode, octokit, repo, item, setFile }){
         repo: repo.name,
         path: item.path
       })
-      .then(res => {console.log(res);setSubdir(res.data)})
+      .then(res => setSubdir(res.data))
       .catch(err => console.log(err))
     }
   }
@@ -405,7 +436,7 @@ function Directory({ lightMode, octokit, repo, item, setFile }){
       </ListItem>
       <Collapse in={Boolean(subdir)} timeout="auto" unmountOnExit>
         {!subdir?null:
-          <List component="div" disablePadding sx={{ pl: 4 }}>
+          <List dense component="div" disablePadding sx={{ pl: 3 }}>
             {subdir.map(subitem=>
               subitem.type==='dir'?
                 <Directory key={subitem.name} lightMode={lightMode} octokit={octokit} repo={repo} item={subitem} setFile={setFile}/> 
@@ -427,9 +458,10 @@ function File({ lightMode, octokit, repo, item, setFile }){
       path: item.path
     })
     .then(res => {
-      const encoded = res.data.content;
-      const decoded = atob(encoded);
-      setFile(decoded);
+      //const encoded = res.data.content;
+      //const decoded = atob(encoded);
+      //setFile(decoded)
+      setFile(res);
     })
     .catch(err => console.log(err))
   }
@@ -437,7 +469,7 @@ function File({ lightMode, octokit, repo, item, setFile }){
     <ListItem disablePadding>
       <ListItemButton onClick={()=>openFile(item)}>
         <ListItemIcon>
-          <ArticleIcon/>
+          {item.name.endsWith(".md")?<ArticleIcon/>:<HandymanIcon />}
         </ListItemIcon>
         <ListItemText primary={item.name}/>
       </ListItemButton>
