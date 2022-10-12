@@ -32,7 +32,16 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import Paper from '@mui/material/Paper';
 import LogoutIcon from '@mui/icons-material/Logout';
 import Fade from '@mui/material/Fade';
+
+import TextField from '@mui/material/TextField';
 import Collapse from '@mui/material/Collapse';
+
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import DeleteIcon from '@mui/icons-material/Delete';
+import PublishIcon from '@mui/icons-material/Publish';
 
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -43,19 +52,35 @@ import ListItemText from '@mui/material/ListItemText';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 
+import Divider from '@mui/material/Divider';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import ArticleIcon from '@mui/icons-material/Article';
 import HandymanIcon from '@mui/icons-material/Handyman';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 
 import AutoFixNormalIcon from '@mui/icons-material/AutoFixNormal';
 import AutoFixOffIcon from '@mui/icons-material/AutoFixOff';
 
+import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+
+import MenuItem from '@mui/material/MenuItem';
+
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+
 import { usePromiseTracker, trackPromise } from "react-promise-tracker";
 import CodeEditor from '@uiw/react-textarea-code-editor';
 
-
 import HashLoader from "react-spinners/HashLoader";
 import MDEditor from '@uiw/react-md-editor';
+
+import yaml from 'js-yaml';
+import toml from 'toml';
 
 import {exampleRepo} from './example.js';
 
@@ -84,7 +109,7 @@ function Main(){
   const [easyMode, setEasyMode] = React.useState(true);
   const [color, setColor] = React.useState('#f44336');
   const [show, setShow] = React.useState(false);
-  const [login, setLogin] = React.useState("");
+  const [login, setLogin] = React.useState("example");
   const theme = React.useMemo(
     () =>
       createTheme({
@@ -148,7 +173,11 @@ display: "block", position: "fixed", inset: "0"}}/>
         <LoadingIndicator/>
         {login?
           login==='example'?
-            <WebsitePage lightMode={lightMode} easyMode={easyMode} octokit={new Octokit({auth: '', userAgent: 'Brigita Editor Example' })} repo= {exampleRepo}/>
+            <Paper elevation={24} style={{padding:'2rem', minWidth:'90vw'}}>
+              <Grid spacing={2} container direction="row" justifyContent="center" alignItems="flex-start">
+                <WebsitePage lightMode={lightMode} easyMode={easyMode} octokit={new Octokit({auth: '', userAgent: 'Brigita Editor Example' })} repo= {exampleRepo}/>
+              </Grid>
+            </Paper>
             :
             <ReposPage login={login} lightMode={lightMode}/>
         :
@@ -223,20 +252,33 @@ function ReposPage({ lightMode, login }){
   },[])
   return(
     <Grid item xs={12}>
-      <Fade in={Boolean(repos.length && !selected)} unmountOnExit>
-        <Paper elevation={24} style={{padding:'2rem'}}>
-          <Grid spacing={2} container direction="row" justifyContent="center" alignItems="flex-start">
-            <Grid item xs={12} style={{textAlign:'center'}}><Typography variant="h4">Pick your website repository</Typography></Grid>
-            {repos.map(item =>
-              <Grid item key={item.id} xs={2} >
-                <Button onClick={()=>setSelected(item)} fullWidth size="large" variant={lightMode==='light'?"contained":"outlined"} style={{textTransform: 'none'}}>{item.name}</Button>      
+      {repos.length<1?null:
+      <Paper elevation={24} style={{padding:'2rem', minWidth:'90vw'}}>
+        <Grid spacing={2} container direction="row" justifyContent="center" alignItems="flex-start">
+          {!selected?
+            <React.Fragment>
+              <Grid item xs={12} style={{textAlign:'center'}}><Typography variant="h4">Pick your website repository</Typography></Grid>
+              {repos.map(item =>
+                <Grid item key={item.id} xs={2} >
+                  <Button onClick={()=>setSelected(item)} fullWidth size="large" variant={lightMode==='light'?"contained":"outlined"} style={{textTransform: 'none'}}>{item.name}</Button>      
+                </Grid>
+              )}
+            </React.Fragment>
+            :
+            <React.Fragment>
+              <Grid item xs={12}>
+                <Button variant="text" startIcon={<ChevronLeftIcon />}>
+                  /{selected.name} at @{selected.owner.login}
+                </Button>
               </Grid>
-            )}
-          </Grid>
-        </Paper>
-      </Fade>
-      {!selected?null:
-        <WebsitePage lightMode={lightMode} octokit={octokit} repo={selected}/>
+              <Grid item xs={12} style={{width: '100%'}}>
+                <Divider/>
+              </Grid>
+              <WebsitePage lightMode={lightMode} octokit={octokit} repo={selected}/>
+            </React.Fragment>
+          }
+        </Grid>
+      </Paper>
       }
     </Grid>
   )
@@ -256,33 +298,34 @@ function WebsitePage({ lightMode, octokit, repo, easyMode }){
       .catch(err => console.log(err))
     }
     trackPromise(onLoad());
-  },[])
-  return(
-    <Grid item xs={12}>
-      {files.length<1?null:
-        <Paper style={{width:'90vw'}}>
-          <Grid container direction="row" justifyContent="space-between" alignItems="stretch">
-            <Grid item xs={3} style={{maxHeight: '70vh', overflow: 'auto'}}>
-              <List dense>
-                {files.map(item=>
-                  item.type==='dir'?
-                    <Directory key={item.name} lightMode={lightMode} octokit={octokit} repo={repo} item={item} setFile={setFile}/> 
-                  :
-                    <File key={item.name} lightMode={lightMode} octokit={octokit} repo={repo} item={item} setFile={setFile}/>
-                )}
-              </List>
-            </Grid>
-            <Grid item container xs={9} data-color-mode={lightMode} direction="column" justifyContent="flex-start" alignItems="stretch">
-              <FileEditor file={file} setFile={setFile} easyMode={easyMode}/>
-            </Grid>
-          </Grid>
-        </Paper>
-      }
-    </Grid>
-  )
+  },[easyMode])
+  if(files.length>1){
+    return(
+      <React.Fragment>
+      <Grid item xs={12} container direction="row" justifyContent="space-between" alignItems="stretch">
+        <Grid item xs={3} style={{maxHeight: '70vh', overflow: 'auto'}}>
+          <List dense>
+            {files.map(item=>
+              item.type==='dir'?
+                <Directory key={item.name} easyMode={easyMode} lightMode={lightMode} octokit={octokit} repo={repo} item={item} setFile={setFile}/> 
+              :
+                <File key={item.name} easyMode={easyMode} lightMode={lightMode} octokit={octokit} repo={repo} item={item} setFile={setFile}/>
+            )}
+          </List>
+        </Grid>
+        <Grid item container xs={9} data-color-mode={lightMode} direction="column" justifyContent="flex-start" alignItems="stretch">
+          <FileEditor file={file} setFile={setFile} easyMode={easyMode}/>
+        </Grid>
+      </Grid>
+      </React.Fragment>
+    )
+  }
+  else{
+    return <></>
+  }
 }
 
-function Directory({ lightMode, octokit, repo, item, setFile }){
+function Directory({ easyMode, lightMode, octokit, repo, item, setFile }){
   const [subdir, setSubdir] = React.useState(null);
   const expand = () =>{
     if(subdir){
@@ -301,22 +344,25 @@ function Directory({ lightMode, octokit, repo, item, setFile }){
   return(
     <React.Fragment>
       <ListItem disablePadding>
-      <ListItemButton onClick={expand}>
-        <ListItemIcon>
-          <FolderOpenIcon/>
-        </ListItemIcon>
-        <ListItemText primary={item.name}/>
-        {subdir? <ExpandLess /> : <ExpandMore />}
-      </ListItemButton>
+        {!easyMode||(easyMode && item.name==="content")?
+          <ListItemButton onClick={expand}>
+          <ListItemIcon>
+            <FolderOpenIcon/>
+          </ListItemIcon>
+          <ListItemText primary={item.name}/>
+          {subdir? <ExpandLess /> : <ExpandMore />}
+        </ListItemButton>
+        :null
+        }
       </ListItem>
       <Collapse in={Boolean(subdir)} timeout="auto" unmountOnExit>
         {!subdir?null:
           <List dense component="div" disablePadding sx={{ pl: 3 }}>
             {subdir.map(subitem=>
               subitem.type==='dir'?
-                <Directory key={subitem.name} lightMode={lightMode} octokit={octokit} repo={repo} item={subitem} setFile={setFile}/> 
+                <Directory key={subitem.name} easyMode={easyMode} lightMode={lightMode} octokit={octokit} repo={repo} item={subitem} setFile={setFile}/> 
               :
-                <File key={subitem.name} lightMode={lightMode} octokit={octokit} repo={repo} item={subitem} setFile={setFile}/>
+                <File key={subitem.name} easyMode={easyMode} lightMode={lightMode} octokit={octokit} repo={repo} item={subitem} setFile={setFile}/>
             )}
           </List>
         }
@@ -325,7 +371,7 @@ function Directory({ lightMode, octokit, repo, item, setFile }){
   )
 }
 
-function File({ lightMode, octokit, repo, item, setFile }){
+function File({ easyMode, lightMode, octokit, repo, item, setFile }){
   function openFile(item){
     octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
       owner: repo.owner.login,
@@ -339,12 +385,23 @@ function File({ lightMode, octokit, repo, item, setFile }){
   }
   return(
     <ListItem disablePadding>
-      <ListItemButton onClick={()=>openFile(item)}>
-        <ListItemIcon>
-          {item.name.endsWith(".md")?<ArticleIcon/>:<HandymanIcon />}
-        </ListItemIcon>
-        <ListItemText primary={item.name}/>
-      </ListItemButton>
+      {easyMode?
+        (item.name.endsWith(".md")&&(!item.name.startsWith(".")))?
+          <ListItemButton onClick={()=>openFile(item)}>
+            <ListItemIcon>
+              {item.name.endsWith(".md")?<ArticleIcon/>:<HandymanIcon />}
+            </ListItemIcon>
+            <ListItemText primary={item.name.substring(0,item.name.lastIndexOf("."))}/>
+          </ListItemButton>
+        :null
+      :
+        <ListItemButton onClick={()=>openFile(item)}>
+          <ListItemIcon>
+            {item.name.endsWith(".md")?<ArticleIcon/>:<HandymanIcon />}
+          </ListItemIcon>
+          <ListItemText primary={item.name}/>
+        </ListItemButton>
+      }
     </ListItem>
   )
 }
@@ -352,26 +409,98 @@ function File({ lightMode, octokit, repo, item, setFile }){
 
 function FileEditor({file, setFile, easyMode}){
   const [content, setContent] = React.useState(null)
+  const [changed, setChanged] = React.useState(false);
+  const [meta, setMeta] = React.useState(null);
+  const metaFields = {
+    title: {type:"string", required: true, size: 9},
+    date: {type:"date", required: true, size: 3},
+    tags: {type:"suggest", required: false, size: 6},
+    categories: {type:"suggest", required: false, size: 6},
+    image: {type:"string", required: false, size: 6},
+  }
   React.useEffect(() => {
     if(file){
       if(easyMode){
-        setContent(atob(file.content))
+        const buffer_content = atob(file.content).split("---");
+        const buffer_meta = buffer_content[1]
+        setMeta(yaml.load(buffer_meta))
+        setContent(buffer_content.slice(2).join("").trim())
+        setChanged(false);
       }
       else{
         setContent(atob(file.content))
+        setChanged(true);
       }
     }
   }, [file, easyMode])
+  console.log(meta)
   if(content){
     return(
       <React.Fragment>
-        <Grid item style={{height: '10vh'}}>
-          <Button variant="contained">Publish</Button>
-        </Grid>
           {easyMode?
-            <Grid item style={{maxHeight: '60vh'}}>
-              <MDEditor value={content} onChange={setContent} height='99%'/>
-            </Grid>
+            <React.Fragment>
+              <Grid item style={{paddingLeft:'1rem'}}>
+                <Accordion>
+                  <AccordionSummary expandIcon={<ExpandMore />}>
+                    <Typography sx={{ width: '33%', flexShrink: 0 }}>Post Configuration</Typography>
+                    <Typography sx={{ color: 'text.secondary' }}>Set title, tags and publish!</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <Grid spacing={1} container direction="row" justifyContent="space-between" alignItems="stretch"> 
+                        <Grid item>
+                          <Button variant="contained" startIcon={<PublishIcon/>} disabled={!changed}>{changed?(easyMode?"Publish":"Commit"):"No Changes Detected"}</Button>
+                        </Grid>
+                        <Grid item>
+                          <Button variant="contained" startIcon={<DeleteIcon/>}>Delete</Button>
+                        </Grid>
+                        <Grid item xs/>
+                        <Grid item>
+                          <FormGroup>
+                            <FormControlLabel control={<Checkbox/>} label="Draft"/>
+                          </FormGroup>
+                        </Grid>
+                        {Object.keys(metaFields).map(question=>
+                          <React.Fragment key={question}>
+                            {!metaFields.hasOwnProperty(question)?null:
+                              <Grid item xs={metaFields[question].size}>
+                                {metaFields[question].type==="date"?
+                                  <DesktopDatePicker value={meta[question]} onChange={v=>console.log(v)} label={question} inputFormat="MM/DD/YYYY" renderInput={(params) => <TextField fullWidth required={metaFields[question].required} {...params} />}/>
+                                :metaFields[question].type==="suggest"?
+                                  <FormControl fullWidth>
+                                    <InputLabel>{question}</InputLabel>
+                                    <Select
+                                      multiple
+                                      value={meta[question]}
+                                      //onChange={handleChange}
+                                      input={<OutlinedInput label={question}/>}
+                                      renderValue={(selected) => selected.join(', ')}
+                                      >
+                                        {meta[question].map(item=>
+                                          <MenuItem key={item} value={item}>
+                                            <Checkbox checked={meta[question].indexOf(item) > -1} />
+                                            <ListItemText primary={item} />
+                                          </MenuItem>
+                                        )}
+                                    </Select>
+                                  </FormControl>
+                                :
+                                  <TextField fullWidth required={metaFields[question].required} label={question} value={meta[question]} onChange={e=>{setMeta({...meta,[question]:e.target.value})}} variant="outlined" />
+                                }
+                              </Grid>
+                            }
+                          </React.Fragment>
+                        )}
+                      </Grid>
+                    </LocalizationProvider>
+                  </AccordionDetails>
+                </Accordion>
+              </Grid>
+              <Grid item style={{maxHeight: '60vh', paddingLeft:'1rem'}}>
+                <MDEditor value={content} onChange={v=>{setContent(v);setChanged(true)}} height='99%'/>
+              </Grid>
+
+            </React.Fragment>
           :
             <Grid item style={{maxHeight: '60vh', overflow: 'auto'}}>
               <CodeEditor height='99%' value={content} onChange={e => setContent(e.target.value)}
