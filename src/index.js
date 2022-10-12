@@ -68,6 +68,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import MenuItem from '@mui/material/MenuItem';
 
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Popover from '@mui/material/Popover';
 
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -408,22 +409,22 @@ function File({ easyMode, lightMode, octokit, repo, item, setFile }){
 
 
 function FileEditor({file, setFile, easyMode}){
-  const [content, setContent] = React.useState(null)
+  const [content, setContent] = React.useState(null);
   const [changed, setChanged] = React.useState(false);
+  const [imageAnchor, setImageAnchor] = React.useState(null);
   const [meta, setMeta] = React.useState(null);
   const metaFields = {
     title: {type:"string", required: true, size: 9},
     date: {type:"date", required: true, size: 3},
     tags: {type:"suggest", required: false, size: 6},
     categories: {type:"suggest", required: false, size: 6},
-    image: {type:"string", required: false, size: 6},
+    image: {type:"image", required: false, size: 6},
   }
   React.useEffect(() => {
     if(file){
       if(easyMode){
         const buffer_content = atob(file.content).split("---");
-        const buffer_meta = buffer_content[1]
-        setMeta(yaml.load(buffer_meta))
+        setMeta(yaml.load(buffer_content[1]))
         setContent(buffer_content.slice(2).join("").trim())
         setChanged(false);
       }
@@ -434,6 +435,15 @@ function FileEditor({file, setFile, easyMode}){
     }
   }, [file, easyMode])
   console.log(meta)
+  function previewImage(url){
+    var image = new Image();
+    image.src = url;
+    if (image.width == 0) {
+       return "Tried finding "+url+". Didn't work!"
+    } else {
+       return <img src={url} width="400" height="300" />
+    }
+  }
   if(content){
     return(
       <React.Fragment>
@@ -471,11 +481,14 @@ function FileEditor({file, setFile, easyMode}){
                                     <InputLabel>{question}</InputLabel>
                                     <Select
                                       multiple
-                                      value={meta[question]}
+                                      value={meta[question]!==undefined?meta[question]:""}
                                       //onChange={handleChange}
                                       input={<OutlinedInput label={question}/>}
                                       renderValue={(selected) => selected.join(', ')}
                                       >
+                                        <MenuItem disabled value="">
+                                          Select {question}
+                                        </MenuItem>
                                         {meta[question].map(item=>
                                           <MenuItem key={item} value={item}>
                                             <Checkbox checked={meta[question].indexOf(item) > -1} />
@@ -483,6 +496,25 @@ function FileEditor({file, setFile, easyMode}){
                                           </MenuItem>
                                         )}
                                     </Select>
+                                  </FormControl>
+                                :metaFields[question].type==="image"?
+                                  <FormControl style={{marginTop:'1rem'}} fullWidth variant="outlined">
+                                    <InputLabel>Link to Image</InputLabel>
+                                    <OutlinedInput
+                                      value={meta[question]}
+                                      onChange={e=>setMeta({...meta,[question]:e.target.value})}
+                                      endAdornment={
+                                        <InputAdornment position="end">
+                                          <IconButton onMouseEnter={e=>setImageAnchor(e.currentTarget)} onMouseLeave={()=>setImageAnchor(null)} edge="end">
+                                            <Visibility />
+                                          </IconButton>
+                                        </InputAdornment>
+                                      }
+                                      label="Link to Image"
+                                    />
+                                    <Popover sx={{pointerEvents: 'none'}} open={Boolean(imageAnchor)} anchorEl={imageAnchor} anchorOrigin={{vertical: 'bottom', horizontal: 'left'}} transformOrigin={{vertical: 'top',horizontal: 'left'}} onClose={()=>setImageAnchor(null)} disableRestoreFocus> 
+                                      {previewImage(meta[question])}
+                                    </Popover>
                                   </FormControl>
                                 :
                                   <TextField fullWidth required={metaFields[question].required} label={question} value={meta[question]} onChange={e=>{setMeta({...meta,[question]:e.target.value})}} variant="outlined" />
@@ -503,8 +535,7 @@ function FileEditor({file, setFile, easyMode}){
             </React.Fragment>
           :
             <Grid item style={{maxHeight: '60vh', overflow: 'auto'}}>
-              <CodeEditor height='99%' value={content} onChange={e => setContent(e.target.value)}
- language={file.name.substring(file.name.lastIndexOf('.') + 1)}/>
+              <CodeEditor height='99%' value={content} onChange={e => setContent(e.target.value)} language={file.name.substring(file.name.lastIndexOf('.') + 1)}/>
             </Grid>
           }
       </React.Fragment>
