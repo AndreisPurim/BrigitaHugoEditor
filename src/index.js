@@ -11,7 +11,9 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { ThemeProvider, useTheme, createTheme } from "@mui/material/styles";
 
-
+import Chip from '@mui/material/Chip';
+import AutoModeIcon from '@mui/icons-material/AutoMode';
+import SpeedIcon from '@mui/icons-material/Speed';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import Link from '@mui/material/Link';
@@ -21,6 +23,7 @@ import ColorLensIcon from '@mui/icons-material/ColorLens';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import PostAddIcon from '@mui/icons-material/PostAdd';
 
 
 import InputLabel from '@mui/material/InputLabel';
@@ -85,6 +88,20 @@ import toml from 'toml';
 
 import {exampleRepo} from './example.js';
 
+// for later:
+// https://stackoverflow.com/questions/30106476/using-javascripts-atob-to-decode-base64-doesnt-properly-decode-utf-8-strings
+
+
+
+const enableEditing = true // Flag to disable editing in simple mode while I fix bugs
+
+const metaFields = {
+  title: {type:"string", required: true, size: 9, default: ""},
+  date: {type:"date", required: true, size: 3, default: new Date},
+  tags: {type:"suggest", required: false, size: 6, default: [], values:["tag 1","tag 2"]},
+  categories: {type:"suggest", required: false, size: 6, default: [], values:["cat 1","cat 2"]},
+  image: {type:"image", required: false, size: 6, default: ""},
+}
 
 const getComplementaryColor = (color = '') => {
   const colorPart = color.slice(1);
@@ -107,7 +124,7 @@ function Main(){
   const [cookies, setCookie] = useCookies(['token']);
   const [token, setToken] = React.useState(cookies.token);
   const [lightMode, setLightMode] = React.useState(useMediaQuery('(prefers-color-scheme: dark)')?'dark':'light');
-  const [easyMode, setEasyMode] = React.useState(true);
+  const [simpleMode, setSimpleMode] = React.useState(true);
   const [color, setColor] = React.useState('#f44336');
   const [show, setShow] = React.useState(false);
   const [login, setLogin] = React.useState("example");
@@ -158,9 +175,9 @@ display: "block", position: "fixed", inset: "0"}}/>
               {lightMode==='light'?<DarkModeIcon style={{color:"white"}}/>:<LightModeIcon style={{color:"white"}}/>}
             </IconButton>
           </Tooltip>
-          <Tooltip title={"Change to "+(easyMode?'Technical':'Easy')+" Mode "+(easyMode?'(will show all files as is, including technical ones)':'(will try to show you only the necessary)')}>
-            <IconButton onClick={()=>setEasyMode(!easyMode)}>
-              {easyMode?<AutoFixOffIcon style={{color:"white"}}/>:<AutoFixNormalIcon style={{color:"white"}}/>}
+          <Tooltip title={"Change to "+(simpleMode?'Technical':'Simple')+" Mode "+(simpleMode?'(will show all files as is, including technical ones)':'(will try to show you only the necessary)')}>
+            <IconButton onClick={()=>setSimpleMode(!simpleMode)}>
+              {simpleMode?<AutoFixOffIcon style={{color:"white"}}/>:<AutoFixNormalIcon style={{color:"white"}}/>}
             </IconButton>
           </Tooltip>
           {login===""?null:
@@ -176,11 +193,11 @@ display: "block", position: "fixed", inset: "0"}}/>
           login==='example'?
             <Paper elevation={24} style={{padding:'2rem', minWidth:'90vw'}}>
               <Grid spacing={2} container direction="row" justifyContent="center" alignItems="flex-start">
-                <WebsitePage lightMode={lightMode} easyMode={easyMode} octokit={new Octokit({auth: '', userAgent: 'Brigita Editor Example' })} repo= {exampleRepo}/>
+                <WebsitePage lightMode={lightMode} simpleMode={simpleMode} octokit={new Octokit({auth: '', userAgent: 'Brigita Editor Example' })} repo={exampleRepo}/>
               </Grid>
             </Paper>
             :
-            <ReposPage login={login} lightMode={lightMode}/>
+            <ReposPage login={login} simpleMode={simpleMode} lightMode={lightMode}/>
         :
           <Grid item >
             <Card elevation={24} sx={{maxWidth: 600}}>
@@ -235,10 +252,9 @@ display: "block", position: "fixed", inset: "0"}}/>
   )
 }
 
-function ReposPage({ lightMode, login }){
+function ReposPage({ lightMode, login, simpleMode }){
   const [repos, setRepos] = React.useState([]);
   const [selected, setSelected] = React.useState(null);
-  const [subdir, setSubdir] = React.useState([]);
   const octokit = new Octokit({     
     auth: login,    
     userAgent: 'Brigita Editor' 
@@ -268,14 +284,14 @@ function ReposPage({ lightMode, login }){
             :
             <React.Fragment>
               <Grid item xs={12}>
-                <Button variant="text" startIcon={<ChevronLeftIcon />}>
+                <Button variant="text" startIcon={<ChevronLeftIcon />} onClick={()=>setSelected(null)}>
                   /{selected.name} at @{selected.owner.login}
                 </Button>
               </Grid>
               <Grid item xs={12} style={{width: '100%'}}>
                 <Divider/>
               </Grid>
-              <WebsitePage lightMode={lightMode} octokit={octokit} repo={selected}/>
+              <WebsitePage lightMode={lightMode} simpleMode={simpleMode} octokit={octokit} repo={selected}/>
             </React.Fragment>
           }
         </Grid>
@@ -285,7 +301,7 @@ function ReposPage({ lightMode, login }){
   )
 }
 
-function WebsitePage({ lightMode, octokit, repo, easyMode }){
+function WebsitePage({ lightMode, octokit, repo, simpleMode }){
   const [files, setFiles] = React.useState([]);
   const [file, setFile] = React.useState(null);
   React.useEffect(() => {
@@ -299,23 +315,53 @@ function WebsitePage({ lightMode, octokit, repo, easyMode }){
       .catch(err => console.log(err))
     }
     trackPromise(onLoad());
-  },[easyMode])
+  },[simpleMode])
+  const createNewfile=()=>{
+    setFile({content:"!new---\n"+yaml.dump(Object.keys(metaFields).reduce((acc, key) => {acc[key] = metaFields[key].default; return acc; }, {}))+"---\nStart Writing!"})
+  }
   if(files.length>1){
     return(
       <React.Fragment>
       <Grid item xs={12} container direction="row" justifyContent="space-between" alignItems="stretch">
         <Grid item xs={3} style={{maxHeight: '70vh', overflow: 'auto'}}>
+          {files.some(file => file.name === '.github')?
+            <Tooltip title="We found a .github in this repository and we assume it has a workflow configured to auto-update the website. (This is good, it is the way Brigita is intended to work! Ask your admin about it!)">
+              <Chip icon={<AutoModeIcon/>} color="success" variant="outlined" label="With Workflow" />
+            </Tooltip>
+          :
+            <Tooltip title="We didn't find a .github in this repository, which means the website won't update. Ask your admin or read the instructions in the github (link in the footer!)">
+              <Chip icon={<AutoModeIcon/>} color="error" variant="outlined" label="No Workflow" />
+            </Tooltip>
+          }
+          {files.some(file => file.name === '.brigita.toml')?
+            <Tooltip title="We found a .brigita.toml file in the repository, which helps Brigita speed things up! This is very good!">
+              <Chip icon={<SpeedIcon/>} color="success"  variant="outlined" label="Preconfigured"  />
+            </Tooltip>
+          :
+            <Tooltip title="There is no .brigita.toml file in the repository, which means some functionalities might not work as intended. Read the instructions in our github!">
+              <Chip icon={<SpeedIcon/>} color="error"  variant="outlined" label="Not configured"  />
+            </Tooltip>
+          }
           <List dense>
+            <ListItem disablePadding>
+              <ListItemButton onClick={createNewfile}>
+                <ListItemIcon>
+                  <PostAddIcon/>
+                </ListItemIcon>
+                <ListItemText primary="Create new file"/>
+              </ListItemButton>
+            </ListItem>
+            <Divider variant="middle"/>
             {files.map(item=>
               item.type==='dir'?
-                <Directory key={item.name} easyMode={easyMode} lightMode={lightMode} octokit={octokit} repo={repo} item={item} setFile={setFile}/> 
+                <Directory selname={file?file.name:""} key={item.name} simpleMode={simpleMode} lightMode={lightMode} octokit={octokit} repo={repo} item={item} setFile={setFile}/> 
               :
-                <File key={item.name} easyMode={easyMode} lightMode={lightMode} octokit={octokit} repo={repo} item={item} setFile={setFile}/>
+                <File selected={file&&file.name===item.name} key={item.name} simpleMode={simpleMode} lightMode={lightMode} octokit={octokit} repo={repo} item={item} setFile={setFile}/>
             )}
           </List>
         </Grid>
         <Grid item container xs={9} data-color-mode={lightMode} direction="column" justifyContent="flex-start" alignItems="stretch">
-          <FileEditor file={file} setFile={setFile} easyMode={easyMode}/>
+          <FileEditor file={file} octokit={octokit} repo={repo} setFile={setFile} simpleMode={simpleMode}/>
         </Grid>
       </Grid>
       </React.Fragment>
@@ -326,7 +372,7 @@ function WebsitePage({ lightMode, octokit, repo, easyMode }){
   }
 }
 
-function Directory({ easyMode, lightMode, octokit, repo, item, setFile }){
+function Directory({ simpleMode, lightMode, octokit, repo, item, selname, setFile }){
   const [subdir, setSubdir] = React.useState(null);
   const expand = () =>{
     if(subdir){
@@ -345,7 +391,7 @@ function Directory({ easyMode, lightMode, octokit, repo, item, setFile }){
   return(
     <React.Fragment>
       <ListItem disablePadding>
-        {!easyMode||(easyMode && item.name==="content")?
+        {!simpleMode||(simpleMode && item.name==="content")?
           <ListItemButton onClick={expand}>
           <ListItemIcon>
             <FolderOpenIcon/>
@@ -361,9 +407,9 @@ function Directory({ easyMode, lightMode, octokit, repo, item, setFile }){
           <List dense component="div" disablePadding sx={{ pl: 3 }}>
             {subdir.map(subitem=>
               subitem.type==='dir'?
-                <Directory key={subitem.name} easyMode={easyMode} lightMode={lightMode} octokit={octokit} repo={repo} item={subitem} setFile={setFile}/> 
+                <Directory  key={subitem.name} simpleMode={simpleMode} lightMode={lightMode} octokit={octokit} repo={repo} item={subitem} setFile={setFile}/> 
               :
-                <File key={subitem.name} easyMode={easyMode} lightMode={lightMode} octokit={octokit} repo={repo} item={subitem} setFile={setFile}/>
+                <File key={subitem.name} simpleMode={simpleMode} lightMode={lightMode} octokit={octokit} repo={repo} item={subitem} setFile={setFile}/>
             )}
           </List>
         }
@@ -372,7 +418,7 @@ function Directory({ easyMode, lightMode, octokit, repo, item, setFile }){
   )
 }
 
-function File({ easyMode, lightMode, octokit, repo, item, setFile }){
+function File({ simpleMode, lightMode, octokit, repo, item, setFile }){
   function openFile(item){
     octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
       owner: repo.owner.login,
@@ -386,9 +432,9 @@ function File({ easyMode, lightMode, octokit, repo, item, setFile }){
   }
   return(
     <ListItem disablePadding>
-      {easyMode?
+      {simpleMode ?
         (item.name.endsWith(".md")&&(!item.name.startsWith(".")))?
-          <ListItemButton onClick={()=>openFile(item)}>
+          <ListItemButton onClick={()=>openFile(item)} disabled={!enableEditing}>
             <ListItemIcon>
               {item.name.endsWith(".md")?<ArticleIcon/>:<HandymanIcon />}
             </ListItemIcon>
@@ -407,34 +453,26 @@ function File({ easyMode, lightMode, octokit, repo, item, setFile }){
   )
 }
 
-
-function FileEditor({file, setFile, easyMode}){
+function FileEditor({file, setFile, simpleMode, repo, octokit}){
   const [content, setContent] = React.useState(null);
   const [changed, setChanged] = React.useState(false);
   const [imageAnchor, setImageAnchor] = React.useState(null);
   const [meta, setMeta] = React.useState(null);
-  const metaFields = {
-    title: {type:"string", required: true, size: 9},
-    date: {type:"date", required: true, size: 3},
-    tags: {type:"suggest", required: false, size: 6},
-    categories: {type:"suggest", required: false, size: 6},
-    image: {type:"image", required: false, size: 6},
-  }
   React.useEffect(() => {
-    if(file){
-      if(easyMode){
-        const buffer_content = atob(file.content).split("---");
+    if(file && file.content){
+      const buffer_string = file.content.startsWith("!new")?file.content.slice(4):atob(file.content)
+      if(simpleMode){
+        const buffer_content = buffer_string.split("---");
         setMeta(yaml.load(buffer_content[1]))
         setContent(buffer_content.slice(2).join("").trim())
         setChanged(false);
       }
       else{
-        setContent(atob(file.content))
+        setContent(atob(buffer_string))
         setChanged(true);
       }
     }
-  }, [file, easyMode])
-  console.log(meta)
+  }, [file, simpleMode])
   function previewImage(url){
     var image = new Image();
     image.src = url;
@@ -444,10 +482,22 @@ function FileEditor({file, setFile, easyMode}){
        return <img src={url} width="400" height="300" />
     }
   }
+  const saveFile=()=>{
+    console.log()
+    octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
+      owner: repo.owner.login,
+      repo: repo.name,
+      path: "content/test1.md",
+      message: 'File test with Brigita v0.1.0',
+      content: btoa("---\n"+yaml.dump(meta)+"---\n"+content)
+    }).then(res => alert("nice"))
+    .catch(err => alert("bad"))
+  }
+  console.log(file, repo)
   if(content){
     return(
       <React.Fragment>
-          {easyMode?
+          {simpleMode?
             <React.Fragment>
               <Grid item style={{paddingLeft:'1rem'}}>
                 <Accordion>
@@ -459,7 +509,7 @@ function FileEditor({file, setFile, easyMode}){
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <Grid spacing={1} container direction="row" justifyContent="space-between" alignItems="stretch"> 
                         <Grid item>
-                          <Button variant="contained" startIcon={<PublishIcon/>} disabled={!changed}>{changed?(easyMode?"Publish":"Commit"):"No Changes Detected"}</Button>
+                          <Button variant="contained" startIcon={<PublishIcon/>} onClick={saveFile} disabled={!changed}>{changed?(simpleMode?"Publish":"Commit"):"No Changes Detected"}</Button>
                         </Grid>
                         <Grid item>
                           <Button variant="contained" startIcon={<DeleteIcon/>}>Delete</Button>
@@ -475,21 +525,21 @@ function FileEditor({file, setFile, easyMode}){
                             {!metaFields.hasOwnProperty(question)?null:
                               <Grid item xs={metaFields[question].size}>
                                 {metaFields[question].type==="date"?
-                                  <DesktopDatePicker value={meta[question]} onChange={v=>console.log(v)} label={question} inputFormat="MM/DD/YYYY" renderInput={(params) => <TextField fullWidth required={metaFields[question].required} {...params} />}/>
+                                  <DesktopDatePicker value={meta[question]} onChange={v=>setMeta({...meta,[question]:v})} label={question} inputFormat="MM/DD/YYYY" renderInput={(params) => <TextField fullWidth required={metaFields[question].required} {...params} />}/>
                                 :metaFields[question].type==="suggest"?
                                   <FormControl fullWidth>
                                     <InputLabel>{question}</InputLabel>
                                     <Select
                                       multiple
                                       value={meta[question]!==undefined?meta[question]:""}
-                                      //onChange={handleChange}
+                                      onChange={e=>setMeta({...meta,[question]:e.target.value})}
                                       input={<OutlinedInput label={question}/>}
                                       renderValue={(selected) => selected.join(', ')}
                                       >
                                         <MenuItem disabled value="">
                                           Select {question}
                                         </MenuItem>
-                                        {meta[question].map(item=>
+                                        {metaFields[question].values.map(item=>
                                           <MenuItem key={item} value={item}>
                                             <Checkbox checked={meta[question].indexOf(item) > -1} />
                                             <ListItemText primary={item} />
@@ -546,8 +596,14 @@ function FileEditor({file, setFile, easyMode}){
       <React.Fragment>
       <Grid item xs/>
       <Grid item style={{textAlign: 'center'}}>
-        <Typography>Select a file to start editing!</Typography>
-        <Typography>You are in <b>{easyMode?'easy':'technical'} mode</b></Typography>     
+        <Typography>Brigita version <b>0.2.0</b></Typography>
+        <Typography>Editing is disabled until I fix some bugs</Typography>
+        <Typography>Thanks for using. You make my day worth it.</Typography>
+        <Typography>- Andreis</Typography>
+      </Grid>
+      <Grid item xs/>
+      <Grid item style={{textAlign: 'center'}}>
+        <Typography>You are in <b>{simpleMode?'simple':'technical'} mode</b></Typography>     
       </Grid>
       <Grid item xs/>
       </React.Fragment>
