@@ -91,7 +91,19 @@ import {exampleRepo} from './example.js';
 // for later:
 // https://stackoverflow.com/questions/30106476/using-javascripts-atob-to-decode-base64-doesnt-properly-decode-utf-8-strings
 
+/* To Do:
 
+- Fix the atob and btoa
+- Edit files
+- Configure and Read brigita.toml, configure page
+- Check why cookies disappear
+- make list item selected and warning when changed
+- Fix technical mode
+- Make warning when changing
+- Fix graphical bugs (jitter, etc...)
+- New files can be seen on folders and show filepath
+
+*/
 
 const enableEditing = true // Flag to disable editing in simple mode while I fix bugs
 
@@ -147,7 +159,7 @@ function Main(){
   }
   const handleSubmit = (event) => {
     event.preventDefault();
-    setCookie('token', token, { path: '/' });
+    setCookie('token', token, { path: '/', secure: true, sameSite: 'strict'});
     setLogin(token);
   }
   const changeTheme=()=>{
@@ -333,12 +345,12 @@ function WebsitePage({ lightMode, octokit, repo, simpleMode }){
               <Chip icon={<AutoModeIcon/>} color="error" variant="outlined" label="No Workflow" />
             </Tooltip>
           }
-          {files.some(file => file.name === '.brigita.toml')?
-            <Tooltip title="We found a .brigita.toml file in the repository, which helps Brigita speed things up! This is very good!">
+          {files.some(file => file.name === 'brigita.toml')?
+            <Tooltip title="We found a brigita.toml file in the repository, which helps Brigita speed things up! This is very good!">
               <Chip icon={<SpeedIcon/>} color="success"  variant="outlined" label="Preconfigured"  />
             </Tooltip>
           :
-            <Tooltip title="There is no .brigita.toml file in the repository, which means some functionalities might not work as intended. Read the instructions in our github!">
+            <Tooltip title="There is no brigita.toml file in the repository, which means some functionalities might not work as intended. Read the instructions in our github!">
               <Chip icon={<SpeedIcon/>} color="error"  variant="outlined" label="Not configured"  />
             </Tooltip>
           }
