@@ -279,6 +279,7 @@ function ReposPage({ lightMode, login, simpleMode }){
     }
     trackPromise(onLoad());
   },[])
+  console.log(repos)
   return(
     <Grid item xs={12}>
       {repos.length<1?null:
@@ -480,7 +481,7 @@ function FileEditor({file, setFile, simpleMode, repo, octokit}){
         setChanged(false);
       }
       else{
-        setContent(atob(buffer_string))
+        setContent(buffer_string)
         setChanged(true);
       }
     }
